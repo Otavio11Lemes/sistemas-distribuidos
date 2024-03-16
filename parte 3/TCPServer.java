@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.util.Random;
 
 public class TCPServer {
     public static void main(String[] args) {
@@ -7,6 +8,7 @@ public class TCPServer {
         try {
             // Criar um servidor na porta 6789
             serverSocket = new ServerSocket(6789);
+            System.out.println("Servidor TCP iniciado. Aguardando conexões...");
 
             while (true) {
                 // Aceitar conexões de clientes
@@ -17,18 +19,22 @@ public class TCPServer {
                 BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
 
-                // Receber a palavra encriptada do cliente
-                String palavraEncriptada = input.readLine();
+                // Escolher uma palavra aleatória do array
+                String palavraOriginal = escolherPalavraAleatoria();
+                String palavraEmbaralhada = embaralharPalavra(palavraOriginal);
 
-                // Decifrar a palavra
-                String palavraOriginal = decifrar(palavraEncriptada);
+                // Enviar a palavra embaralhada ao cliente
+                output.println(palavraEmbaralhada);
 
-                // Enviar a palavra encriptada de volta ao cliente
-                output.println(palavraEncriptada);
+                // Receber a resposta do cliente
+                String resposta = input.readLine();
 
-                // Exibir a palavra encriptada e a palavra original no servidor
-                System.out.println("Palavra Encriptada: " + palavraEncriptada);
-                System.out.println("Palavra Original Recebida: " + palavraOriginal);
+                // Verificar se a resposta do cliente está correta
+                if (resposta.equalsIgnoreCase(palavraOriginal)) {
+                    output.println("correta");
+                } else {
+                    output.println("incorreta");
+                }
 
                 // Fechar o socket do cliente
                 clientSocket.close();
@@ -46,17 +52,25 @@ public class TCPServer {
         }
     }
 
-    // Método para decifrar uma palavra usando a cifra de César
-    private static String decifrar(String palavraEncriptada) {
-        StringBuilder original = new StringBuilder();
-        for (int i = 0; i < palavraEncriptada.length(); i++) {
-            char c = palavraEncriptada.charAt(i);
-            if (Character.isLetter(c)) {
-                // Desloca a letra três posições para trás no alfabeto
-                c = (char) (((c - 'a' - 3 + 26) % 26) + 'a');
-            }
-            original.append(c);
+    // Método para escolher uma palavra aleatória
+    public static String escolherPalavraAleatoria() {
+        String[] palavras = {"banana", "abacaxi", "morango", "laranja", "uva", "melancia"};
+        Random random = new Random();
+        return palavras[random.nextInt(palavras.length)];
+    }
+
+    // Método para embaralhar uma palavra
+    public static String embaralharPalavra(String palavra) {
+        char[] chars = palavra.toCharArray();
+        Random random = new Random();
+
+        for (int i = 0; i < chars.length; i++) {
+            int j = random.nextInt(chars.length);
+            char temp = chars[i];
+            chars[i] = chars[j];
+            chars[j] = temp;
         }
-        return original.toString();
+
+        return new String(chars);
     }
 }

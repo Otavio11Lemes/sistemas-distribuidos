@@ -9,22 +9,24 @@ public class TCPClient {
             socket = new Socket("localhost", 6789);
 
             // Obter os streams de entrada e saída
-            OutputStream out = socket.getOutputStream();
-            PrintWriter output = new PrintWriter(out, true);
-            InputStream in = socket.getInputStream();
-            BufferedReader input = new BufferedReader(new InputStreamReader(in));
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
 
-            // Palavra a ser enviada
-            String palavraOriginal = "abacaxi";
-            // Encriptar a palavra
-            String palavraEncriptada = encriptar(palavraOriginal);
-            // Enviar a palavra encriptada ao servidor
-            output.println(palavraEncriptada);
+            // Receber a palavra embaralhada do servidor
+            String palavraEmbaralhada = input.readLine();
+            System.out.println("Adivinhe a palavra embaralhada: " + palavraEmbaralhada);
 
-            // Receber e exibir a palavra encriptada e a palavra original do servidor
-            String respostaServidor = input.readLine();
-            System.out.println("Palavra Encriptada Recebida: " + respostaServidor);
-            System.out.println("Palavra Original: " + palavraOriginal);
+            // Solicitar ao jogador adivinhar a palavra
+            System.out.print("Sua resposta: ");
+            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+            String resposta = userInput.readLine();
+
+            // Enviar a resposta ao servidor
+            output.println(resposta);
+
+            // Receber e exibir o resultado do servidor
+            String resultado = input.readLine();
+            System.out.println("Resultado: " + resultado);
         } catch (IOException e) {
             System.err.println("Erro: " + e.getMessage());
         } finally {
@@ -36,19 +38,5 @@ public class TCPClient {
                 System.err.println("Erro ao fechar o socket: " + e.getMessage());
             }
         }
-    }
-
-    // Método para encriptar uma palavra usando a cifra de César
-    private static String encriptar(String palavra) {
-        StringBuilder encriptada = new StringBuilder();
-        for (int i = 0; i < palavra.length(); i++) {
-            char c = palavra.charAt(i);
-            if (Character.isLetter(c)) {
-                // Desloca a letra três posições para frente no alfabeto
-                c = (char) (((c - 'a' + 3) % 26) + 'a');
-            }
-            encriptada.append(c);
-        }
-        return encriptada.toString();
     }
 }
