@@ -14,14 +14,17 @@ public class TCPClient {
             InputStream in = socket.getInputStream();
             BufferedReader input = new BufferedReader(new InputStreamReader(in));
 
-            // Enviar a temperatura em graus Celsius ao servidor
-            double temperaturaCelsius = 20.5; // Exemplo de temperatura em graus Celsius
-            output.println(temperaturaCelsius);
+            // Palavra a ser enviada
+            String palavraOriginal = "abacaxi";
+            // Encriptar a palavra
+            String palavraEncriptada = encriptar(palavraOriginal);
+            // Enviar a palavra encriptada ao servidor
+            output.println(palavraEncriptada);
 
-            // Receber e exibir a temperatura em graus Fahrenheit do servidor
-            String temperaturaFahrenheitStr = input.readLine();
-            double temperaturaFahrenheit = Double.parseDouble(temperaturaFahrenheitStr);
-            System.out.println("Temperatura em Fahrenheit: " + temperaturaFahrenheit);
+            // Receber e exibir a palavra encriptada e a palavra original do servidor
+            String respostaServidor = input.readLine();
+            System.out.println("Palavra Encriptada Recebida: " + respostaServidor);
+            System.out.println("Palavra Original: " + palavraOriginal);
         } catch (IOException e) {
             System.err.println("Erro: " + e.getMessage());
         } finally {
@@ -33,5 +36,19 @@ public class TCPClient {
                 System.err.println("Erro ao fechar o socket: " + e.getMessage());
             }
         }
+    }
+
+    // Método para encriptar uma palavra usando a cifra de César
+    private static String encriptar(String palavra) {
+        StringBuilder encriptada = new StringBuilder();
+        for (int i = 0; i < palavra.length(); i++) {
+            char c = palavra.charAt(i);
+            if (Character.isLetter(c)) {
+                // Desloca a letra três posições para frente no alfabeto
+                c = (char) (((c - 'a' + 3) % 26) + 'a');
+            }
+            encriptada.append(c);
+        }
+        return encriptada.toString();
     }
 }
