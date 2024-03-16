@@ -1,0 +1,41 @@
+import java.io.*;
+import java.net.*;
+
+public class UDPServer {
+    public static void main(String[] args) {
+        DatagramSocket socket = null;
+        try {
+            // Criar um socket UDP na porta 9876
+            socket = new DatagramSocket(9876);
+
+            // Preparar para receber o pacote do cliente
+            byte[] receiveData = new byte[1024];
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+
+            // Esperar pelo pacote do cliente
+            socket.receive(receivePacket);
+
+            // Extrair a temperatura em Celsius do pacote recebido
+            String temperaturaCelsiusStr = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            double temperaturaCelsius = Double.parseDouble(temperaturaCelsiusStr);
+
+            // Converter a temperatura para Fahrenheit
+            double temperaturaFahrenheit = (temperaturaCelsius * 9 / 5) + 32;
+
+            // Preparar para enviar a temperatura convertida ao cliente
+            InetAddress clientAddress = receivePacket.getAddress();
+            int clientPort = receivePacket.getPort();
+            byte[] sendData = Double.toString(temperaturaFahrenheit).getBytes();
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clientAddress, clientPort);
+
+            // Enviar a temperatura em Fahrenheit ao cliente
+            socket.send(sendPacket);
+        } catch (IOException e) {
+            System.err.println("Erro: " + e.getMessage());
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
+        }
+    }
+}
